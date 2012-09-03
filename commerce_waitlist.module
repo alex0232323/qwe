@@ -1,0 +1,37 @@
+<?php
+/**
+ * @file
+ * commerce_waitlist.module
+ */
+
+/**
+ * Implements hook_form_alter().
+ */
+function commerce_waitlist_form_alter(&$form, &$form_state, $form_id) {
+  // Only act on the add-to-cart form, starts with commerce_cart_add_...
+  if (substr($form_id, 0, 30) != 'commerce_cart_add_to_cart_form') {
+    return;
+  }
+
+  // @TODO Is that a safe way for retrieving the product ID?
+  if (empty($form['product_id']['#value'])) {
+    return;
+  }
+  $product_id = $form['product_id']['#value'];
+  $wrapper = entity_metadata_wrapper('commerce_product', $product_id);
+
+  // Nothing to do if there's no stock field on the product.
+  if (empty($wrapper->commerce_stock)) {
+    return;
+  }
+
+  // If the product is out of stock, disable the "Add to cart" button and add
+  // an "Add to waitlist" link.
+  if ($wrapper->commerce_stock->value() == 0) {
+    $form['submit']['#disabled'] = TRUE;
+
+    $form['waitlist'] = array(
+      '#markup' => flag_create_link('waitlist', $product_id),
+    );
+  }
+}
