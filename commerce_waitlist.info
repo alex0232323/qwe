@@ -1,4 +1,5 @@
 name = Commerce Waitlist
+description = Allowing users to add unavailable products to a waitlist and get a notification once a product becomes available.
 core = 7.x
 package = Commerce Waitlist
 php = 5.2.4

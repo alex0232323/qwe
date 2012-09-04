@@ -78,13 +78,12 @@ function commerce_waitlist_entity_update($entity, $type) {
 }
 
 /**
- * Get the waitlist flagging of the current user on a given product, only if he
- * wasn't notified already for the product.
+ * Get the unnotified waitlist flagging of the user on a given product.
  *
- * @param $product_id
+ * @param int $product_id
  *   Commerce product ID.
  *
- * @return
+ * @return int
  *   The waitlist flagging ID of the product by the current user.
  */
 function commerce_waitlist_get_flagging_id($product_id) {
@@ -94,13 +93,13 @@ function commerce_waitlist_get_flagging_id($product_id) {
 
   $query = new EntityFieldQuery();
   $result = $query->entityCondition('entity_type', 'flagging')
-    ->propertyCondition('fid',  $flag->fid)
+    ->propertyCondition('fid', $flag->fid)
     ->propertyCondition('entity_type', 'commerce_product')
     ->propertyCondition('entity_id', $product_id)
     ->propertyCondition('uid', $user->uid)
     // Filter out flaggings for which the user was already notified.
     ->fieldCondition('field_waitlist_notified', 'value', FALSE)
-    ->range(0,1)
+    ->range(0, 1)
     ->execute();
 
   if (!empty($result['flagging'])) {
