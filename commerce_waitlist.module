@@ -35,3 +35,75 @@ function commerce_waitlist_form_alter(&$form, &$form_state, $form_id) {
     );
   }
 }
+
+/**
+ * Implements hook_entity_update().
+ */
+function commerce_waitlist_entity_update($entity, $type) {
+  global $user;
+
+  if ($type != 'commerce_product') {
+    return;
+  }
+
+  // Check if the product just became available again; If the original stock is
+  // zero and the updated stock is greater than zero.
+  if ($entity->original->commerce_stock[LANGUAGE_NONE][0]['value'] == 0 && $entity->commerce_stock[LANGUAGE_NONE][0]['value'] > 0) {
+    $flagging_id = commerce_waitlist_get_flagging_id($entity->product_id);
+    if (!$flagging_id) {
+      return;
+    }
+
+    // Send notification.
+    $message = message_create('product_available');
+    $wrapper = entity_metadata_wrapper('message', $message);
+    $wrapper->field_product_ref->set($entity);
+
+    // Let message-notify deliver the email, and send the message for us.
+    // We pass in the options the field names, that will be used to capture
+    // the rendered message, and provide an email log.
+    $options = array(
+      'rendered fields' => array(
+        'message_notify_email_subject' => 'field_message_rendered_subject',
+        'message_notify_email_body' => 'field_message_rendered_body',
+      ),
+    );
+    message_notify_send_message($message, $options);
+
+    // Mark the flagging as notified.
+    $wrapper = entity_metadata_wrapper('flagging', $flagging_id);
+    $wrapper->field_waitlist_notified->set(TRUE);
+    $wrapper->save();
+  }
+}
+
+/**
+ * Get the waitlist flagging of the current user on a given product, only if he
+ * wasn't notified already for the product.
+ *
+ * @param $product_id
+ *   Commerce product ID.
+ *
+ * @return
+ *   The waitlist flagging ID of the product by the current user.
+ */
+function commerce_waitlist_get_flagging_id($product_id) {
+  global $user;
+
+  $flag = flag_get_flag('waitlist');
+
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'flagging')
+    ->propertyCondition('fid',  $flag->fid)
+    ->propertyCondition('entity_type', 'commerce_product')
+    ->propertyCondition('entity_id', $product_id)
+    ->propertyCondition('uid', $user->uid)
+    // Filter out flaggings for which the user was already notified.
+    ->fieldCondition('field_waitlist_notified', 'value', FALSE)
+    ->range(0,1)
+    ->execute();
+
+  if (!empty($result['flagging'])) {
+    return key($result['flagging']);
+  }
+}
