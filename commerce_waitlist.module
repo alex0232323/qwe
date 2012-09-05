@@ -8,21 +8,24 @@ require_once 'commerce_waitlist.features.inc';
 
 /**
  * Implements hook_form_alter().
+ *
+ * Adding the "Add to waitlist" link to the "Add to cart" form if the product is
+ * out of stock.
  */
 function commerce_waitlist_form_alter(&$form, &$form_state, $form_id) {
-  // Only act on the add-to-cart form, starts with commerce_cart_add_...
+  // Ignore the form unless its ID starts with "commerce_cart_add_to_cart_form".
   if (substr($form_id, 0, 30) != 'commerce_cart_add_to_cart_form') {
     return;
   }
 
-  // @TODO Is that a safe way for retrieving the product ID?
+  // Get the product entity.
   if (empty($form['product_id']['#value'])) {
     return;
   }
   $product_id = $form['product_id']['#value'];
   $wrapper = entity_metadata_wrapper('commerce_product', $product_id);
 
-  // Nothing to do if there's no stock field on the product.
+  // Return if there's no stock field on the product.
   if (empty($wrapper->commerce_stock)) {
     return;
   }
@@ -40,10 +43,11 @@ function commerce_waitlist_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * Implements hook_entity_update().
+ *
+ * Whenever a product gets updated, check if it just came back to stock. If so,
+ * notify users who flagged it.
  */
 function commerce_waitlist_entity_update($entity, $type) {
-  global $user;
-
   if ($type != 'commerce_product') {
     return;
   }
@@ -53,34 +57,18 @@ function commerce_waitlist_entity_update($entity, $type) {
     return;
   }
 
-  // Check if the product just became available again; If the original stock is
-  // zero and the updated stock is greater than zero.
+  // Check if the product just became available again; I.e. If the original
+  // stock is zero and the updated stock is greater than zero.
   if ($entity->original->commerce_stock[LANGUAGE_NONE][0]['value'] == 0 && $entity->commerce_stock[LANGUAGE_NONE][0]['value'] > 0) {
+    // Search for a flagging made by the by the current user for which no
+    // notification was sent yet.
     $flagging_id = commerce_waitlist_get_flagging_id($entity->product_id);
     if (!$flagging_id) {
       return;
     }
 
-    // Send notification.
-    $message = message_create('product_available');
-    $wrapper = entity_metadata_wrapper('message', $message);
-    $wrapper->field_product_ref->set($entity);
-
-    // Let message-notify deliver the email, and send the message for us.
-    // We pass in the options the field names, that will be used to capture
-    // the rendered message, and provide an email log.
-    $options = array(
-      'rendered fields' => array(
-        'message_notify_email_subject' => 'field_message_rendered_subject',
-        'message_notify_email_body' => 'field_message_rendered_body',
-      ),
-    );
-    message_notify_send_message($message, $options);
-
-    // Mark the flagging as notified.
-    $wrapper = entity_metadata_wrapper('flagging', $flagging_id);
-    $wrapper->field_waitlist_notified->set(TRUE);
-    $wrapper->save();
+    // Send a notification to the user.
+    commerce_waitlist_send_notification($entity->product_id, $flagging_id);
   }
 }
 
@@ -112,4 +100,25 @@ function commerce_waitlist_get_flagging_id($product_id) {
   if (!empty($result['flagging'])) {
     return key($result['flagging']);
   }
+}
+
+/**
+ * Send a notification about a product which came back to stock.
+ *
+ * @param int $product_id
+ *   The product which became available.
+ * @param int $flagging_id
+ *   The waitlist flag that was issued on the product.
+ */
+function commerce_waitlist_send_notification($product_id, $flagging_id) {
+  // Send the notification.
+  $message = message_create('product_available');
+  $wrapper = entity_metadata_wrapper('message', $message);
+  $wrapper->field_product_ref->set($product_id);
+  message_notify_send_message($message);
+
+  // Mark the flagging as notified.
+  $wrapper = entity_metadata_wrapper('flagging', $flagging_id);
+  $wrapper->field_waitlist_notified->set(TRUE);
+  $wrapper->save();
 }
