@@ -48,6 +48,11 @@ function commerce_waitlist_entity_update($entity, $type) {
     return;
   }
 
+  // Make sure the stock field is present on the entity.
+  if (empty($entity->commerce_stock) ||empty($entity->original->commerce_stock)) {
+    return;
+  }
+
   // Check if the product just became available again; If the original stock is
   // zero and the updated stock is greater than zero.
   if ($entity->original->commerce_stock[LANGUAGE_NONE][0]['value'] == 0 && $entity->commerce_stock[LANGUAGE_NONE][0]['value'] > 0) {
