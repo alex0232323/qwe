@@ -5,6 +5,13 @@
  */
 
 /**
+ * Implements hook_views_api().
+ */
+function commerce_waitlist_views_api() {
+  return array("version" => "3.0");
+}
+
+/**
  * Implements hook_flag_default_flags().
  */
 function commerce_waitlist_flag_default_flags() {
@@ -36,11 +43,11 @@ function commerce_waitlist_flag_default_flags() {
     'show_on_form' => 0,
     'access_author' => '',
     'show_contextual_link' => 0,
-    'api_version' => 2,
     'module' => 'commerce_waitlist',
     'locked' => array(
       0 => 'name',
     ),
+    'api_version' => 2,
   );
   return $flags;
 }
