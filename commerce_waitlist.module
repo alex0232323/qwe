@@ -4,6 +4,8 @@
  * commerce_waitlist.module
  */
 
+require_once 'commerce_waitlist.features.inc';
+
 /**
  * Implements hook_form_alter().
  */
