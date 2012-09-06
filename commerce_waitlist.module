@@ -118,7 +118,13 @@ function commerce_waitlist_send_notification($product_id, $flagging_id) {
   message_notify_send_message($message);
 
   // Mark the flagging as notified.
-  $wrapper = entity_metadata_wrapper('flagging', $flagging_id);
-  $wrapper->field_waitlist_notified->set(TRUE);
-  $wrapper->save();
+  // @TODO Replace the follwing with $wrapper->save(); Currently the flagging
+  // entity doesn't support save functionality, in the meantime update the
+  // notified field manually.
+  db_update('field_data_field_waitlist_notified')
+    ->fields(array('field_waitlist_notified_value' => TRUE))
+    ->condition('entity_type', 'flagging')
+    ->condition('bundle', 'waitlist')
+    ->condition('entity_id', $flagging_id)
+    ->execute();
 }
