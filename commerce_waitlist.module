@@ -35,6 +35,14 @@ function commerce_waitlist_form_alter(&$form, &$form_state, $form_id) {
   if ($wrapper->commerce_stock->value() == 0) {
     $form['submit']['#disabled'] = TRUE;
 
+    // Add the waitlist link unless the form is shown on the waitlist page,
+    // where the link will be added by the view, outside the form.
+    // @TODO Add a configuration for selecting on which pages the link is shown.
+    $item = menu_get_item();
+    if ($item['path'] == 'user/%/waitlist') {
+      return;
+    }
+
     $form['waitlist'] = array(
       '#markup' => flag_create_link('waitlist', $product_id),
     );
