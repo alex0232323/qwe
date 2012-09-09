@@ -9,6 +9,7 @@ dependencies[] = commerce_product
 dependencies[] = commerce_product_reference
 dependencies[] = commerce_ss
 dependencies[] = commerce_stock
+dependencies[] = entityreference
 dependencies[] = features
 dependencies[] = flag
 dependencies[] = list

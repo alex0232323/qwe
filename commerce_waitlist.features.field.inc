@@ -81,24 +81,35 @@ function commerce_waitlist_field_default_fields() {
       'deleted' => '0',
       'entity_types' => array(),
       'field_name' => 'field_product_ref',
-      'foreign keys' => array(
-        'product_id' => array(
-          'columns' => array(
-            'product_id' => 'product_id',
-          ),
-          'table' => 'commerce_product',
-        ),
-      ),
+      'foreign keys' => array(),
       'indexes' => array(
-        'product_id' => array(
-          0 => 'product_id',
+        'target_id' => array(
+          0 => 'target_id',
         ),
       ),
       'locked' => '0',
-      'module' => 'commerce_product_reference',
-      'settings' => array(),
+      'module' => 'entityreference',
+      'settings' => array(
+        'handler' => 'base',
+        'handler_settings' => array(
+          'behaviors' => array(
+            'views-select-list' => array(
+              'status' => 0,
+            ),
+          ),
+          'sort' => array(
+            'direction' => 'ASC',
+            'field' => 'commerce_price:amount',
+            'property' => 'product_id',
+            'type' => 'none',
+          ),
+          'target_bundles' => array(),
+        ),
+        'handler_submit' => 'Change handler',
+        'target_type' => 'commerce_product',
+      ),
       'translatable' => '0',
-      'type' => 'commerce_product_reference',
+      'type' => 'entityreference',
     ),
     'field_instance' => array(
       'bundle' => 'product_available',
@@ -108,15 +119,11 @@ function commerce_waitlist_field_default_fields() {
       'display' => array(
         'default' => array(
           'label' => 'above',
-          'module' => 'commerce_cart',
+          'module' => 'entityreference',
           'settings' => array(
-            'combine' => TRUE,
-            'default_quantity' => 1,
-            'line_item_type' => 'product',
-            'show_quantity' => FALSE,
-            'show_single_product_attributes' => FALSE,
+            'link' => FALSE,
           ),
-          'type' => 'commerce_cart_add_to_cart_form',
+          'type' => 'entityreference_label',
           'weight' => 0,
         ),
         'message_notify_email_body' => array(
@@ -135,19 +142,15 @@ function commerce_waitlist_field_default_fields() {
       'entity_type' => 'message',
       'field_name' => 'field_product_ref',
       'label' => 'Product ref',
-      'required' => FALSE,
+      'required' => 1,
       'settings' => array(
-        'field_injection' => 1,
-        'referenceable_types' => array(
-          'product' => 0,
-        ),
         'user_register_form' => FALSE,
       ),
       'widget' => array(
         'active' => 1,
-        'module' => 'commerce_product_reference',
+        'module' => 'options',
         'settings' => array(),
-        'type' => 'commerce_product_reference_hidden',
+        'type' => 'options_select',
         'weight' => '1',
       ),
     ),

@@ -45,10 +45,9 @@ function commerce_waitlist_flag_default_flags() {
     'show_contextual_link' => 0,
     'module' => 'commerce_waitlist',
     'locked' => array(
-      'name' => 'name',
+      0 => 'name',
     ),
     'api_version' => 3,
-    'status' => TRUE,
   );
   return $flags;
 }
@@ -69,17 +68,17 @@ function commerce_waitlist_default_message_type() {
     "arguments" : null,
     "message_text" : { "und" : [
         {
-          "value" : "[Product] is in stock again",
+          "value" : "[message:field-product-ref:title] is in stock again.",
           "format" : "filtered_html",
-          "safe_value" : "\\u003Cp\\u003E[Product] is in stock again\\u003C\\/p\\u003E\\n"
+          "safe_value" : "\\u003Cp\\u003E[message:field-product-ref:title] is in stock again.\\u003C\\/p\\u003E\\n"
         }
       ]
     },
     "message_text_subject" : { "und" : [
         {
-          "value" : "[Product] is in stock again",
+          "value" : "[message:field-product-ref:title] is in stock again",
           "format" : null,
-          "safe_value" : "[Product] is in stock again"
+          "safe_value" : "[message:field-product-ref:title] is in stock again"
         }
       ]
     },
