@@ -45,9 +45,10 @@ function commerce_waitlist_flag_default_flags() {
     'show_contextual_link' => 0,
     'module' => 'commerce_waitlist',
     'locked' => array(
-      0 => 'name',
+      'name' => 'name',
     ),
-    'api_version' => 2,
+    'api_version' => 3,
+    'status' => TRUE,
   );
   return $flags;
 }
