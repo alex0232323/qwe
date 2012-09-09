@@ -1,0 +1,84 @@
+<?php
+/**
+ * @file
+ * commerce_waitlist.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function commerce_waitlist_install() {
+  // Create the field for storing on each flagging whether a notification was
+  // already sent for it.
+  $field = array(
+    'field_name' => 'field_waitlist_notified',
+    'type' => 'list_boolean',
+    'entity_types' => array('flagging'),
+    'cardinality' => 1,
+    'translatable' => FALSE,
+    'locked' => FALSE,
+    'settings' => array(
+      'allowed_values' => array(
+        0 => '',
+        1 => '',
+      ),
+      'allowed_values_function' => '',
+    ),
+  );
+  $field = field_create_field($field);
+  $instance = array(
+    'field_name' => 'field_waitlist_notified',
+    'bundle' => 'waitlist',
+    'default_value' => array(
+      array(
+        'value' => 0,
+      ),
+    ),
+    'entity_type' => 'flagging',
+    'label' => 'Waitlist Notified',
+    'description' => '',
+    'required' => FALSE,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+  );
+  field_create_instance($instance);
+
+  // Create the field for referencing a product from the waitlist notification
+  // message.
+  $field = array(
+    'field_name' => 'field_waitlist_product',
+    'type' => 'entityreference',
+    'cardinality' => 1,
+    'translatable' => FALSE,
+    'settings' => array(
+      'target_type' => 'commerce_product',
+      'target_bundles' => array(),
+    ),
+  );
+  field_create_field($field);
+
+  $instance = array(
+    'field_name' => 'field_waitlist_product',
+    'entity_type' => 'message',
+    'bundle' => 'product_available',
+    'label' => 'Product reference',
+    'widget' => array(
+      'type' => 'options_select',
+    ),
+  );
+  field_create_instance($instance);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_waitlist_uninstall() {
+  $instance = field_info_instance('flagging', 'field_waitlist_notified', 'waitlist');
+  field_delete_instance($instance);
+  field_delete_field('field_waitlist_notified');
+
+  $instance = field_info_instance('commerce_product', 'field_waitlist_product', 'product_available');
+  field_delete_instance($instance);
+  field_delete_field('field_waitlist_product');
+}

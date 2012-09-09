@@ -61,7 +61,7 @@ function commerce_waitlist_entity_update($entity, $type) {
   }
 
   // Make sure the stock field is present on the entity.
-  if (empty($entity->commerce_stock) ||empty($entity->original->commerce_stock)) {
+  if (empty($entity->commerce_stock) || empty($entity->original->commerce_stock)) {
     return;
   }
 
@@ -122,7 +122,7 @@ function commerce_waitlist_send_notification($product_id, $flagging_id) {
   // Send the notification.
   $message = message_create('product_available');
   $wrapper = entity_metadata_wrapper('message', $message);
-  $wrapper->field_product_ref->set($product_id);
+  $wrapper->field_waitlist_product->set($product_id);
   message_notify_send_message($message);
 
   // Mark the flagging as notified.
