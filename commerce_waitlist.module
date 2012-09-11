@@ -44,7 +44,7 @@ function commerce_waitlist_form_alter(&$form, &$form_state, $form_id) {
     }
 
     $form['waitlist'] = array(
-      '#markup' => flag_create_link('waitlist', $product_id),
+      '#markup' => commerce_waitlist_get_link($product_id),
     );
   }
 }
@@ -135,4 +135,17 @@ function commerce_waitlist_send_notification($product_id, $flagging_id) {
     ->condition('bundle', 'waitlist')
     ->condition('entity_id', $flagging_id)
     ->execute();
+}
+
+/**
+ * Retrieve a link for adding/removing a product to the waitlist.
+ *
+ * @param int $product_id
+ *   The product for which to issue the link.
+ *
+ * @return string
+ *   The link HTML.
+ */
+function commerce_waitlist_get_link($product_id) {
+  return flag_create_link('waitlist', $product_id);
 }
