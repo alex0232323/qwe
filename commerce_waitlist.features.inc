@@ -62,7 +62,7 @@ function commerce_waitlist_default_message_type() {
     "description" : "Product available",
     "argument_keys" : [],
     "argument" : [],
-    "category" : "message_type_email",
+    "category" : "message_type",
     "data" : { "purge" : { "override" : 0, "enabled" : 0, "quota" : "", "days" : "" } },
     "language" : "",
     "arguments" : null,
